@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "npx vite",
-    "build": "vite build",
+    "build": "mkdir -p dist && cp -r * dist || true",
     "preview": "vite preview"
   },
   "devDependencies": {
