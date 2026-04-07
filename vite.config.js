@@ -8,5 +8,15 @@ export default defineConfig({
   // publicDir: '.', // This turned EVERYTHING into a static asset, preventing module transformation.
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        admin: './admin/index.html',
+        login: './mobile-estimate/login.html',
+        estimate: './mobile-estimate/index.html',
+      }
+    }
   }
 });
+
