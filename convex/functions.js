@@ -27,12 +27,18 @@ export const saveEstimate = mutation({
   handler: async (ctx, args) => {
     const { id, ...data } = args;
 
-    // 데이터 정규화 (연락처에서 하이픈 제거 후 저장/조회)
+    // 데이터 정규화 (연락처/이름에서 불필요한 공백 및 하이픈 제거)
     const sanitizedContact = data.contact.replace(/[^0-9]/g, '');
+    const sanitizedName = data.customerName.trim().normalize('NFC');
 
     // 1. 명시적인 ID가 전달된 경우 (수정 모드), 해당 ID를 우선하여 패치
     if (id) {
-      await ctx.db.patch(id, { ...data, contact: sanitizedContact, updatedAt: Date.now() });
+      await ctx.db.patch(id, { 
+        ...data, 
+        customerName: sanitizedName,
+        contact: sanitizedContact, 
+        updatedAt: Date.now() 
+      });
       return id;
     }
 
@@ -40,16 +46,22 @@ export const saveEstimate = mutation({
     const existing = await ctx.db
       .query("estimates")
       .withIndex("by_customer_search", (q) => 
-        q.eq("customerName", data.customerName).eq("contact", sanitizedContact).eq("round", data.round)
+        q.eq("customerName", sanitizedName).eq("contact", sanitizedContact).eq("round", data.round)
       )
       .unique();
 
     if (existing) {
-      await ctx.db.patch(existing._id, { ...data, contact: sanitizedContact, updatedAt: Date.now() });
+      await ctx.db.patch(existing._id, { 
+        ...data, 
+        customerName: sanitizedName,
+        contact: sanitizedContact, 
+        updatedAt: Date.now() 
+      });
       return existing._id;
     } else {
       const newId = await ctx.db.insert("estimates", {
         ...data,
+        customerName: sanitizedName,
         contact: sanitizedContact,
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -79,13 +91,14 @@ export const searchEstimate = query({
     round: v.number() 
   },
   handler: async (ctx, args) => {
-    // 조회 시에도 연락처에서 하이픈 제거 후 검색
+    // 조회 시에도 연락처/이름 정규화
     const sanitizedContact = args.contact.replace(/[^0-9]/g, '');
+    const sanitizedName = args.customerName.trim().normalize('NFC');
     
     return await ctx.db
       .query("estimates")
       .withIndex("by_customer_search", (q) => 
-        q.eq("customerName", args.customerName).eq("contact", sanitizedContact).eq("round", args.round)
+        q.eq("customerName", sanitizedName).eq("contact", sanitizedContact).eq("round", args.round)
       )
       .unique();
   },
