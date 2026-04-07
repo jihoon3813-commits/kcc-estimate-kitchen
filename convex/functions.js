@@ -150,3 +150,25 @@ export const migrateContacts = mutation({
   },
 });
 
+export const debugGetEstimateByNumber = query({
+  args: { quoteNumber: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("estimates")
+      .withIndex("by_quote_number", (q) => q.eq("quoteNumber", args.quoteNumber))
+      .unique();
+  },
+});
+export const scanEstimates = query({
+  handler: async (ctx) => {
+    const all = await ctx.db.query("estimates").collect();
+    return all.map(e => ({
+      _id: e._id,
+      customerName: `[${e.customerName}]`, // 대괄호로 감싸서 공백 확인
+      nameLen: e.customerName.length,
+      contact: `[${e.contact}]`,
+      contactLen: e.contact.length,
+      round: e.round
+    }));
+  }
+});

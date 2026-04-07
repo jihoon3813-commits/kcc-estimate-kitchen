@@ -1,7 +1,7 @@
 import { ConvexClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
+const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || "https://upbeat-herring-81.convex.cloud";
 const client = new ConvexClient(CONVEX_URL);
 
 // 1. 휴대폰 번호 자동 하이픈 로직 (강화된 버전)
@@ -35,13 +35,19 @@ roundBtns.forEach(btn => {
 
 // 3. 로그인 처리
 window.handleLogin = async function() {
-    const name = document.getElementById('cust-name').value;
-    const phone = document.getElementById('cust-phone').value;
+    const nameInput = document.getElementById('cust-name');
+    const phoneInput = document.getElementById('cust-phone');
     const error = document.getElementById('error-msg');
     const submitBtn = document.querySelector('.submit-btn');
 
-    if (!name || phone.length < 12) {
-        alert('이름과 정확한 연락처를 입력해주세요.');
+    if(!nameInput || !phoneInput) return;
+
+    const name = nameInput.value.trim();
+    const rawPhone = phoneInput.value.trim();
+    const phone = rawPhone.replace(/[^0-9]/g, ''); // 숫자만 추출
+
+    if (!name || phone.length < 10) {
+        alert('성함과 정확한 연락처를 입력해주세요.');
         return;
     }
 
@@ -50,7 +56,7 @@ window.handleLogin = async function() {
         submitBtn.innerText = "조회 중...";
         error.style.display = 'none';
 
-        console.log(`Searching for: ${name}, ${phone}, ${activeRound}차`);
+        console.log(`[Estimate Search] Name: ${name}, Phone: ${phone}, Round: ${activeRound}`);
         
         const result = await client.query(api.functions.searchEstimate, {
             customerName: name,
