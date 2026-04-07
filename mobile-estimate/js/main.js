@@ -5,7 +5,8 @@ import { api } from "../../convex/_generated/api";
    KCC글라스 HomeCC | 고객용 견적서 JS (PREMIUM VERSION)
    ========================================= */
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
+// 운영 서버 주소 강제 고정 (환경 변수 누락 방지)
+const CONVEX_URL = "https://upbeat-herring-81.convex.cloud";
 const client = new ConvexClient(CONVEX_URL);
 
 let quoteData = null;
