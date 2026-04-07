@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KCC글라스 HomeCC | 견적 관리 시스템</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- 로그인 모달 -->
+  <div id="login-modal" class="login-overlay">
+    <div class="login-box">
+      <div class="login-logo" style="display:flex; align-items:center; justify-content:center; gap:12px;">
+        <img src="https://cdn.imweb.me/upload/S20250904697320f4fd9ed/5b115594e9a66.png" alt="KCC Logo" style="height:32px;">
+        <span style="font-size:18px; font-weight:800; color:#1a2b4a; border-left:1px solid #ddd; padding-left:12px;">프리미엄 주방</span>
+      </div>
+      <h2>관리자 인증</h2>
+      <div class="input-wrap">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="admin-password" placeholder="비밀번호를 입력하세요" />
+      </div>
+      <button id="login-submit-btn" class="login-btn">접속하기</button>
+      <p id="login-error" class="error-msg">비밀번호가 올바르지 않습니다.</p>
+    </div>
+  </div>
+
+  <!-- 메인 레이아웃 -->
+  <div id="admin-content" style="display: none;">
+    <header class="admin-header">
+      <div class="header-inner">
+        <div class="admin-logo" style="display:flex; align-items:center; gap:12px;">
+          <img src="https://cdn.imweb.me/upload/S20250904697320f4fd9ed/5b115594e9a66.png" alt="KCC" style="height:24px;">
+          <span style="font-size:16px; font-weight:800; border-left:1px solid #ddd; padding-left:10px;">프리미엄 주방</span>
+        </div>
+        <div class="header-info">
+          <span id="current-user-info">관리자 세션 활성</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <!-- 1. 사이드바 메뉴 -->
+      <nav class="admin-tabs">
+        <div class="tab-item active" data-tab="create"><i class="fas fa-plus-circle"></i> 견적생성</div>
+        <div class="tab-item" data-tab="list"><i class="fas fa-search"></i> 견적조회</div>
+        <div class="tab-item" data-tab="settings"><i class="fas fa-cog"></i> 설정</div>
+      </nav>
+
+      <main class="tab-content-wrap">
+        
+        <!-- 2-1. 견적생성 섹션 -->
+        <section id="tab-create" class="tab-content active">
+          <div class="content-header"><h3><i class="fas fa-plus-circle"></i> 새로운 견적 생성</h3></div>
+          
+          <!-- 엑셀 업로드 박스 -->
+          <div class="excel-upload-box" style="background:#fff; padding:30px; border-radius:16px; border:2px dashed #cbd5e1; text-align:center; margin-bottom:30px;">
+             <i class="fas fa-file-excel" style="font-size:32px; color:#10b981; margin-bottom:12px;"></i>
+             <div style="font-weight:800; font-size:16px;">어드민 전용 엑셀 업로드</div>
+             <div style="font-size:13px; color:#64748b; margin-top:5px;">파일명: 이름_010-0000-0000_날짜.xlsx</div>
+             <input type="file" id="excel-upload-raw" style="display:none;" accept=".xlsx, .xls">
+             <button id="excel-upload-btn" class="add-btn row" style="margin-top:20px;">엑셀 파일 선택</button>
+          </div>
+
+          <!-- 통합 입력 폼 -->
+          <div class="admin-form-group">
+            <div class="card-section">
+              <h4>기본 정보 <span class="badge">자동입력 대기</span></h4>
+              <div class="form-grid">
+                <div class="form-item"><label>고객명</label><input type="text" id="q-customer"></div>
+                <div class="form-item"><label>연락처</label><input type="tel" id="q-contact"></div>
+                <div class="form-item">
+                  <label>견적 차수</label>
+                  <select id="q-round">
+                    <option value="1">1차</option>
+                    <option value="2">2차</option>
+                    <option value="3">3차</option>
+                  </select>
+                </div>
+                <div class="form-item"><label>견적번호</label><input type="text" id="q-number" placeholder="EH-YYYYMMDD-000"></div>
+                <div class="form-item full"><label>현장 주소</label><input type="text" id="q-address"></div>
+                <div class="form-item"><label>현장 유형</label><input type="text" id="q-type" placeholder="APT 등"></div>
+                <div class="form-item"><label>견적 날짜</label><input type="date" id="q-date"></div>
+              </div>
+            </div>
+
+            <div class="card-section mt-4">
+              <h4>시공 현장 조건</h4>
+              <div class="toggle-list">
+                <div class="toggle-item"><span>거주여부</span><label class="switch"><input type="checkbox" id="c-resident"><span class="slider"></span></label></div>
+                <div class="toggle-item"><span>엘리베이터 유무</span><label class="switch"><input type="checkbox" id="c-elevator" checked><span class="slider"></span></label></div>
+                <div class="toggle-item"><span>시설 철거 포함</span><label class="switch"><input type="checkbox" id="c-demolish" checked><span class="slider"></span></label></div>
+                <div class="toggle-item"><span>사다리차 사용</span><label class="switch"><input type="checkbox" id="c-ladder"><span class="slider"></span></label></div>
+              </div>
+            </div>
+
+            <div class="card-section mt-4">
+              <div style="display:flex; justify-content:space-between;">
+                <h4>디자인 컨셉 (16:9)</h4>
+                <button id="add-design-img-btn" class="add-btn"><i class="fas fa-plus"></i> 이미지 추가</button>
+              </div>
+              <div id="design-image-list" class="image-grid-admin"></div>
+              <div class="form-item full mt-4"><label>타이틀</label><input type="text" id="d-title"></div>
+              <div class="form-item full"><label>설명</label><textarea id="d-desc" rows="3"></textarea></div>
+            </div>
+
+            <div class="card-section mt-4">
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px;">
+                <div class="section-title-box">
+                  <h4>자재비 세부 내역 <button id="add-quote-row-btn" class="add-btn row" style="padding:4px 10px; margin-left:10px;"><i class="fas fa-plus"></i> 항목 추가</button></h4>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:11px; color:#94a3b8;">단위 : 원(VAT별도)</div>
+                </div>
+              </div>
+
+              <!-- 어드민 전용 테이블 (마진 제거, 업로드 추가) -->
+              <div class="quote-editor-wrap" style="overflow-x:auto;">
+                <table class="quote-table" style="min-width:1100px;">
+                  <thead>
+                    <tr>
+                      <th width="120">대카테고리</th>
+                      <th width="180">이미지 등록</th>
+                      <th width="100">구분</th>
+                      <th width="180">제품명</th>
+                      <th width="120">옵션1</th>
+                      <th width="120">옵션2</th>
+                      <th width="80">사이즈</th>
+                      <th width="60">수량</th>
+                      <th width="100">단위</th>
+                      <th width="130">금액(원가)</th>
+                      <th width="40"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="quote-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 실시간 가격 미리보기 (기본 총계) -->
+            <div class="card-section mt-4" style="background:#fff; border:1px solid #e2e8f0;">
+              <h4 style="color:#2563eb;"><i class="fas fa-eye"></i> 자재비 내역 및 기본 총계 (실시간)</h4>
+              <div id="price-preview-base-container" class="admin-price-preview">
+                <!-- JS에서 기본 리스트 + 기본 총액 생성 -->
+              </div>
+            </div>
+
+            <div class="card-section mt-4" style="background:#f8fafc; border:2px solid #e2e8f0;">
+              <h4><i class="fas fa-credit-card"></i> 결제 방식 설정</h4>
+              <div class="form-grid">
+                <div class="form-item">
+                  <label>일시불 할인율 (%)</label>
+                  <input type="number" id="pay-lump-discount-rate" value="0" placeholder="0" oninput="window.renderPricePreview()">
+                </div>
+                <div class="form-item">
+                  <label>일시불 추가 할인 (원)</label>
+                  <input type="text" id="pay-lump-discount-amt" value="0" placeholder="0" oninput="window.handleExtraPriceInput(this, 'pay-lump-discount-amt')">
+                </div>
+                <div class="form-item full">
+                  <label>구독서비스 이자율 (%) <span style="font-size:11px;font-weight:normal;color:#666;">* 만기일시상환 기준 (연이율)</span></label>
+                  <input type="number" id="pay-sub-interest-rate" value="0" placeholder="0" step="0.1" oninput="window.renderPricePreview()">
+                </div>
+              </div>
+
+              <div id="admin-margin-info" style="margin-top:20px; background:#fff; padding:15px; border-radius:12px; border:1px solid #cbd5e1;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                  <span style="font-size:13px; font-weight:600; color:#475569;">KCC공급가 (최초 100% 마진일 때 총 금액, 부가세 포함 기준)</span>
+                  <span id="label-kcc-supply" style="font-weight:800; font-size:14px;">0원</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                  <span style="font-size:13px; font-weight:600; color:#475569;">일시불 마진금액 (부가세 포함)</span>
+                  <span id="label-lump-margin" style="font-weight:800; font-size:14px; color:#2563eb;">0원</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="font-size:13px; font-weight:600; color:#475569;">일시불 마진율</span>
+                  <span id="label-lump-margin-rate" style="font-weight:800; font-size:14px; color:#ea580c;">0.0%</span>
+                </div>
+              </div>
+
+              <div style="margin-top:15px; padding:15px; background:#fff; border-radius:12px; font-size:13px; color:#64748b; line-height:1.5;">
+                ※ 렌탈서비스(60개월 전용)는 고정된 공식에 의해 자동 계산되어 고객 화면에 표시됩니다.<br>
+                ※ 각 결제 방식의 최종 월 납입금 및 혜택가는 아래 '결제 방식별 최종 혜택가'에서 확인하실 수 있습니다.
+              </div>
+            </div>
+
+            <!-- 결제 방식별 결과 미리보기 -->
+            <div class="card-section mt-4" style="background:#fff; border:1px solid #e2e8f0;">
+              <h4 style="color:#2563eb;"><i class="fas fa-check-circle"></i> 결제 방식별 최종 혜택가 (미리보기)</h4>
+              <div id="price-preview-benefits-container" class="admin-price-preview">
+                <!-- JS에서 결제 방식별 결과 생성 -->
+              </div>
+            </div>
+
+            <div class="form-actions mt-4">
+              <button id="save-all-btn" class="save-btn" style="width:100%; height:60px; font-size:18px;">이 고객의 견적서 등록/저장</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2-2. 견적조회 섹션 -->
+        <section id="tab-list" class="tab-content">
+          <div class="content-header"><h3><i class="fas fa-search"></i> 등록된 견적서 조회</h3></div>
+          <div class="search-bar" style="margin-bottom:20px; display:flex; gap:10px;">
+            <input type="text" id="search-keyword" placeholder="고객명 또는 연락처" style="flex:1; padding:12px; border-radius:10px; border:1px solid #ddd;">
+            <button id="fetch-estimates-btn" class="save-btn">조회</button>
+          </div>
+          <div class="quote-editor-wrap">
+             <table class="quote-table">
+                <thead><tr><th>견적번호</th><th>고객명</th><th>연락처</th><th>차수</th><th>견적일</th><th>관리</th></tr></thead>
+                <tbody id="list-tbody"><tr><td colspan="6" style="text-align:center; padding:100px;">조회된 데이터가 없습니다.</td></tr></tbody>
+             </table>
+          </div>
+        </section>
+
+        <!-- 2-3. 설정 섹션 (안내사항/매니저) -->
+        <section id="tab-settings" class="tab-content">
+          <div class="content-header"><h3><i class="fas fa-cog"></i> 공통 설정</h3></div>
+          <div class="card-section">
+             <h4>견적 안내 사항 <small>(모든 견적서에 공통 적용됩니다)</small></h4>
+             <div id="settings-notes-list" class="notes-admin-list mt-2"></div>
+             <button id="add-note-btn" class="add-btn" style="margin-top:10px;"><i class="fas fa-plus"></i> 항목 추가</button>
+          </div>
+          
+          <div class="card-section mt-4">
+             <h4>담당 매니저 정보 <small>(모든 견적서에 공통 적용됩니다)</small></h4>
+             <div class="form-grid">
+               <div class="form-item"><label>매니저 명</label><input type="text" id="m-name"></div>
+               <div class="form-item"><label>담당업무</label><input type="text" id="m-role"></div>
+               <div class="form-item"><label>소속</label><input type="text" id="m-dept"></div>
+               <div class="form-item full">
+                 <label>사진 (또는 이미지 URL)</label>
+                 <div style="display:flex; gap:8px;">
+                   <input type="text" id="m-img" placeholder="https://..." style="flex:1;">
+                   <button class="add-btn" style="white-space:nowrap;" onclick="document.getElementById('m-img-file').click()">
+                     <i class="fas fa-camera"></i> 업로드
+                   </button>
+                   <input type="file" id="m-img-file" style="display:none;" onchange="window.handleManagerImgUpload(this)">
+                 </div>
+               </div>
+             </div>
+          </div>
+          <div class="form-actions mt-4">
+            <button id="save-settings-btn" class="save-btn">공통 설정값 저장하기</button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- 상세 팝업 -->
+  <div id="detail-modal" class="login-overlay" style="display:none; background:rgba(0,0,0,0.6);">
+    <div class="login-box" style="max-width:500px; text-align:left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="margin:0;">견적 상세 및 링크</h2>
+        <button id="close-modal-btn" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
+      </div>
+      <div id="detail-info" class="form-grid" style="font-size:14px; margin-bottom:20px;"></div>
+      <div id="modal-action-area" style="width:100%;">
+        <!-- JS에서 동적 버튼 및 링크 생성 -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

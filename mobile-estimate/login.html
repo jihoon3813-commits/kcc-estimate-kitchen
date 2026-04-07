@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KCC글라스 HomeCC | 견적서 조회</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 로그인 전용 추가 스타일 */
+    body {
+      background: #1a2b4a; /* 기본 네이비 배경 */
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      border-radius: 30px;
+      padding: 40px 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .login-logo { margin-bottom: 30px; }
+    .brand-kcc { font-size: 20px; font-weight: 800; color: #1a2b4a; }
+    .brand-homecc { font-size: 20px; font-weight: 800; color: #c9a84c; margin-left: 4px; }
+    
+    .login-title { font-size: 22px; font-weight: 800; color: #1a2b4a; margin-bottom: 8px; }
+    .login-subtitle { font-size: 14px; color: #64748b; margin-bottom: 30px; line-height: 1.5; }
+
+    .input-group { margin-bottom: 16px; text-align: left; }
+    .input-group label { display: block; font-size: 13px; font-weight: 700; color: #1a2b4a; margin-bottom: 8px; margin-left: 4px; }
+    .input-field {
+      width: 100%;
+      height: 56px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 0 20px;
+      font-size: 16px;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .input-field:focus { border-color: #c9a84c; background: #fff; box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.1); }
+
+    .round-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .round-btn {
+      height: 50px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .round-btn.active {
+      background: #1a2b4a;
+      color: #fff;
+      border-color: #1a2b4a;
+    }
+
+    .submit-btn {
+      width: 100%;
+      height: 60px;
+      background: linear-gradient(135deg, #1a2b4a, #243660);
+      color: #fff;
+      border: none;
+      border-radius: 18px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(26, 43, 74, 0.2);
+    }
+    .submit-btn:active { transform: scale(0.98); }
+
+    .footer-help { margin-top: 24px; font-size: 13px; color: #94a3b8; }
+    .footer-help a { color: #1a2b4a; font-weight: 700; text-decoration: none; }
+    
+    #error-msg { color: #ef4444; font-size: 13px; margin-top: 15px; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-logo" style="display:flex; align-items:center; justify-content:center; gap:12px;">
+      <img src="https://cdn.imweb.me/upload/S20250904697320f4fd9ed/5b115594e9a66.png" alt="KCC" style="height:28px;">
+      <span style="font-size:18px; font-weight:800; color:#1a2b4a; border-left:1px solid #ddd; padding-left:12px;">프리미엄 주방</span>
+    </div>
+
+    <h2 class="login-title">나의 견적서 확인</h2>
+    <p class="login-subtitle">성함과 연락처를 입력하시면<br/>작성된 견적서를 바로 확인하실 수 있습니다.</p>
+
+    <div class="input-group">
+      <label>고객 성함</label>
+      <input type="text" id="cust-name" class="input-field" placeholder="예: 홍길동">
+    </div>
+
+    <div class="input-group">
+      <label>연락처</label>
+      <!-- inputmode="numeric"과 pattern으로 숫자패드 유도 -->
+      <input type="tel" id="cust-phone" class="input-field" placeholder="010-0000-0000" inputmode="numeric" maxlength="13">
+    </div>
+
+    <div class="input-group">
+      <label>조회 차수</label>
+      <div class="round-selector" id="round-select">
+        <button class="round-btn active" data-round="1">1차</button>
+        <button class="round-btn" data-round="2">2차</button>
+        <button class="round-btn" data-round="3">3차</button>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="handleLogin()">견적서 조회하기</button>
+    <p id="error-msg">일치하는 견적 정보가 없습니다.</p>
+
+    <div class="footer-help">
+      도움이 필요하신가요? <a href="tel:1877-8204">고객센터 연결</a>
+    </div>
+  </div>
+
+  <script type="module" src="/mobile-estimate/js/login.js"></script>
+</body>
+</html>
