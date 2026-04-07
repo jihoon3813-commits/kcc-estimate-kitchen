@@ -26,6 +26,11 @@
         <input type="password" id="admin-password" placeholder="비밀번호를 입력하세요" />
       </div>
       <button id="login-submit-btn" class="login-btn">접속하기</button>
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #eee;">
+        <a href="../mobile-estimate/login.html" class="goto-client-link">
+          <i class="fas fa-user"></i> 고객용 견적조회 바로가기
+        </a>
+      </div>
       <p id="login-error" class="error-msg">비밀번호가 올바르지 않습니다.</p>
     </div>
   </div>
@@ -38,7 +43,10 @@
           <img src="https://cdn.imweb.me/upload/S20250904697320f4fd9ed/5b115594e9a66.png" alt="KCC" style="height:24px;">
           <span style="font-size:16px; font-weight:800; border-left:1px solid #ddd; padding-left:10px;">프리미엄 주방</span>
         </div>
-        <div class="header-info">
+        <div class="header-info" style="display:flex; align-items:center; gap:20px;">
+          <a href="../mobile-estimate/login.html" target="_blank" class="view-client-btn">
+            <i class="fas fa-external-link-alt"></i> 고객용 로그인 페이지
+          </a>
           <span id="current-user-info">관리자 세션 활성</span>
         </div>
       </div>

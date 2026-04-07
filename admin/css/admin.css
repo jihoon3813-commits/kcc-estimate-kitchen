@@ -161,6 +161,27 @@ body {
   gap: 10px;
 }
 
+.view-client-btn {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-navy);
+  text-decoration: none;
+  background: var(--admin-bg);
+  padding: 6px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid var(--admin-border);
+}
+
+.view-client-btn:hover {
+  background: var(--admin-navy);
+  color: #fff;
+  border-color: var(--admin-navy);
+}
+
 .header-actions {
   display: flex;
   gap: 12px;
@@ -544,6 +565,26 @@ input:checked + .slider:before { transform: translateX(24px); }
   color: #fff;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(26, 43, 74, 0.15);
+}
+
+.goto-client-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.goto-client-link:hover {
+  background: #f1f5f9;
+  color: var(--admin-navy);
 }
 
 .add-btn:active {
