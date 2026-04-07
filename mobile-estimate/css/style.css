@@ -564,20 +564,25 @@ section {
 .manager-info h6 { font-size: 15px; font-weight: 700; }
 
 .site-footer {
-  padding: 40px 20px;
+  padding: 40px 24px 100px; /* 플로팅 버튼 여유 공간 확보 */
   text-align: center;
+  background: #0f172a; /* 다크 네이비 배경 */
+  margin-top: 40px;
 }
 
 .footer-info {
-  font-size: 11px;
-  color: var(--text-light);
-  margin-bottom: 4px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 6px;
+  text-align: left;
 }
 
 .footer-copy {
-  font-size: 10px;
-  color: rgba(0,0,0,0.2);
-  margin-top: 12px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 16px;
+  text-align: left;
+  line-height: 1.6;
 }
 
 /* 플로팅 버튼 */

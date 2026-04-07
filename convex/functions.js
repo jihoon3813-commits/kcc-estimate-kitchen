@@ -130,3 +130,23 @@ export const getGlobalSettings = query({
     };
   },
 });
+
+/**
+ * 6. 마이그레이션: 기존 연락처 하이픈 제거 작업
+ */
+export const migrateContacts = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const estimates = await ctx.db.query("estimates").collect();
+    let count = 0;
+    for (const est of estimates) {
+      const sanitized = est.contact.replace(/[^0-9]/g, '');
+      if (est.contact !== sanitized) {
+        await ctx.db.patch(est._id, { contact: sanitized });
+        count++;
+      }
+    }
+    return `마이그레이션 완료! ${count}건의 연락처를 정리했습니다.`;
+  },
+});
+
