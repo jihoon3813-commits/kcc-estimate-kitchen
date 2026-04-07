@@ -414,23 +414,49 @@ function renderPaymentOptions(finalTotal) {
     `;
 }
 
-function renderManager() {
-    const container = document.getElementById('manager-container');
-    if (!container) return;
-    
-    // 글로벌 설정이 있으면 우선 반영, 없으면 견적서상의 복사본 사용
-    const m = (globalSettings && globalSettings.manager) ? globalSettings.manager : (quoteData.manager || {});
-    
-    container.innerHTML = `
+function renderManager(manager) {
+    const managerContainer = document.getElementById('manager-container');
+    if (!managerContainer) return;
+
+    // 데이터 소스 결정 (인자가 있으면 사용, 없으면 글로벌 설정 우선, 그다음 견적서 데이터)
+    const m = manager || (globalSettings && globalSettings.manager ? globalSettings.manager : (quoteData.manager || {}));
+    if (!m || !m.name) return;
+
+    managerContainer.innerHTML = `
         <div class="manager-card">
-            <div class="manager-img" style="background-image: url('${m.imageUrl || 'https://via.placeholder.com/100'}')"></div>
+            <div class="manager-img" 
+                 style="background-image: url('${m.imageUrl || 'https://via.placeholder.com/150'}'); cursor: pointer;"
+                 onclick="openImageModal('${m.imageUrl || 'https://via.placeholder.com/150'}')"></div>
             <div class="manager-info">
-                <p>${m.dept || ''}</p>
-                <h6>${m.name || ''} ${m.role || ''}</h6>
+                <p>${m.dept || 'KCC홈씨씨 티유디지털'}</p>
+                <h6>${m.name} ${m.role || ''}</h6>
             </div>
         </div>
     `;
 }
+
+// 이미지 모달 열기
+window.openImageModal = function(url) {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    const downloadBtn = document.getElementById('download-btn');
+    
+    if (modal && modalImg && downloadBtn) {
+        modalImg.src = url;
+        downloadBtn.href = url;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // 스크롤 방지
+    }
+};
+
+// 이미지 모달 닫기
+window.closeImageModal = function() {
+    const modal = document.getElementById('image-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // 스크롤 복구
+    }
+};
 
 function renderNotes() {
     const list = document.getElementById('notice-list');

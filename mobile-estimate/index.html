@@ -194,6 +194,20 @@
     </a>
   </div>
 
+  <!-- 이미지 크게보기 모달 -->
+  <div id="image-modal" class="image-modal">
+    <div class="modal-overlay" onclick="closeImageModal()"></div>
+    <div class="modal-content">
+      <img id="modal-img" src="" alt="Manager Image">
+      <div class="modal-actions">
+        <a id="download-btn" href="" download="manager_image.jpg" class="download-btn">
+          <i class="fas fa-download"></i> 이미지 저장하기
+        </a>
+        <button class="close-btn" onclick="closeImageModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
 
   <script type="module" src="js/main.js"></script>
 </body>

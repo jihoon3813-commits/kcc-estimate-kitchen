@@ -1,8 +1,11 @@
 import { ConvexClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || "https://upbeat-herring-81.convex.cloud";
+// 운영 서버 주소 강제 고정 (환경 변수 누락 방지)
+const CONVEX_URL = "https://upbeat-herring-81.convex.cloud";
 const client = new ConvexClient(CONVEX_URL);
+
+console.log("[Login] Connecting to Convex:", CONVEX_URL);
 
 // 1. 휴대폰 번호 자동 하이픈 로직 (강화된 버전)
 const phoneInput = document.getElementById('cust-phone');
@@ -23,28 +26,34 @@ if (phoneInput) {
 }
 
 // 2. 차수 선택 로직
-let activeRound = 1;
 const roundBtns = document.querySelectorAll('.round-btn');
-roundBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        roundBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeRound = parseInt(btn.dataset.round);
+let activeRound = 1;
+if (roundBtns.length > 0) {
+    roundBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            roundBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeRound = parseInt(btn.getAttribute('data-round'));
+            console.log("[Login] Selected Round:", activeRound);
+        });
     });
-});
+}
 
 // 3. 로그인 처리
 window.handleLogin = async function() {
+    console.log("[Login] Attempting lookup...");
     const nameInput = document.getElementById('cust-name');
     const phoneInput = document.getElementById('cust-phone');
-    const error = document.getElementById('error-msg');
+    const errorEl = document.getElementById('error-msg');
     const submitBtn = document.querySelector('.submit-btn');
 
-    if(!nameInput || !phoneInput) return;
+    if(!nameInput || !phoneInput) {
+        alert("입력창을 찾을 수 없습니다.");
+        return;
+    }
 
     const name = nameInput.value.trim();
-    const rawPhone = phoneInput.value.trim();
-    const phone = rawPhone.replace(/[^0-9]/g, ''); // 숫자만 추출
+    const phone = phoneInput.value.replace(/[^0-9]/g, '');
 
     if (!name || phone.length < 10) {
         alert('성함과 정확한 연락처를 입력해주세요.');
@@ -54,10 +63,8 @@ window.handleLogin = async function() {
     try {
         submitBtn.disabled = true;
         submitBtn.innerText = "조회 중...";
-        error.style.display = 'none';
+        if(errorEl) errorEl.style.display = 'none';
 
-        console.log(`[Estimate Search] Name: ${name}, Phone: ${phone}, Round: ${activeRound}`);
-        
         const result = await client.query(api.functions.searchEstimate, {
             customerName: name,
             contact: phone,
@@ -65,16 +72,18 @@ window.handleLogin = async function() {
         });
 
         if (result) {
-            // 성공 시 해당 견적서 페이지로 이동 (ID 파라미터 사용)
-            location.href = `index.html?id=${result._id}`;
+            console.log("[Login] Match found! Redirecting to:", result._id);
+            window.location.href = `index.html?id=${result._id}`;
         } else {
-            error.style.display = 'block';
+            console.warn("[Login] No match found for:", name, phone, activeRound);
+            if(errorEl) errorEl.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.innerText = "견적서 조회하기";
         }
     } catch (err) {
-        console.error("Login Error:", err);
-        alert("시스템 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-    } finally {
+        console.error("[Login] Query Error:", err);
+        alert("조회 중 오류가 발생했습니다: " + err.message);
         submitBtn.disabled = false;
         submitBtn.innerText = "견적서 조회하기";
     }
-}
+};
