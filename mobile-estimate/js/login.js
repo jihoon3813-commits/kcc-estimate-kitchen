@@ -4,17 +4,21 @@ import { api } from "../../convex/_generated/api";
 const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
 const client = new ConvexClient(CONVEX_URL);
 
-// 1. 휴대폰 번호 자동 하이픈 로직
+// 1. 휴대폰 번호 자동 하이픈 로직 (강화된 버전)
 const phoneInput = document.getElementById('cust-phone');
 if (phoneInput) {
     phoneInput.addEventListener('input', (e) => {
-        let val = e.target.value.replace(/[^0-9]/g, '');
-        if (val.length > 3 && val.length <= 7) {
-            val = val.slice(0, 3) + '-' + val.slice(3);
-        } else if (val.length > 7) {
-            val = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7);
+        let val = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
+        let formatted = '';
+        
+        if (val.length < 4) {
+            formatted = val;
+        } else if (val.length < 8) {
+            formatted = val.slice(0, 3) + '-' + val.slice(3);
+        } else {
+            formatted = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7);
         }
-        e.target.value = val;
+        e.target.value = formatted;
     });
 }
 
