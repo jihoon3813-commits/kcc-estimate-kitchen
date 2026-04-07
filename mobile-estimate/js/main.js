@@ -399,9 +399,9 @@ function renderPaymentOptions(finalTotal) {
                 <p style="font-size:12px; color:#be185d; margin-bottom:15px; text-align:center; background:#fdf2f8; padding:10px; border-radius:10px; font-weight:600;">렌탈료는 고정하고, 초기 비용을 맞춤 설계하세요.</p>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     ${rentalOptions.map(opt => opt.data.isValid ? `
-                        <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:16px; border-radius:14px; border:1px solid #fce7f3; box-shadow:0 2px 8px rgba(190, 24, 93, 0.05);">
-                            <div style="font-size:13px; color:#64748b;">선납금: <strong style="color:#0f172a; font-size:15px;">${opt.data.prepayment.toLocaleString()}원</strong></div>
-                            <div style="font-size:20px; font-weight:900; color:#be185d;">월 ${opt.data.monthly.toLocaleString()}원</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:12px 10px; border-radius:14px; border:1px solid #fce7f3; box-shadow:0 2px 8px rgba(190, 24, 93, 0.05);">
+                            <div style="font-size:12px; color:#64748b;">선납금: <strong style="color:#0f172a; font-size:13px;">${opt.data.prepayment.toLocaleString()}원</strong></div>
+                            <div style="font-size:18px; font-weight:900; color:#be185d;">월 ${opt.data.monthly.toLocaleString()}원</div>
                         </div>
                     ` : `
                         <div style="display:flex; justify-content:center; align-items:center; background:#f8fafc; padding:15px; border-radius:12px; opacity:0.6; border:1px dashed #cbd5e1;">
