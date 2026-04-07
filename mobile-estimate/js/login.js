@@ -73,7 +73,9 @@ window.handleLogin = async function() {
 
         if (result) {
             console.log("[Login] Match found! Redirecting to:", result._id);
-            window.location.href = `index.html?id=${result._id}`;
+            // 현재 경로에서 login 부분을 제거하고 index.html로 이동 (폴더 구조 대응)
+            const targetPath = window.location.pathname.replace(/login(\.html|\/)?$/, "") + "index.html";
+            window.location.href = `${targetPath}?id=${result._id}`;
         } else {
             console.warn("[Login] No match found for:", name, phone, activeRound);
             if(errorEl) errorEl.style.display = 'block';
