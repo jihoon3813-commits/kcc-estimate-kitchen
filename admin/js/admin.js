@@ -539,12 +539,23 @@ window.renderPricePreview = () => {
         <div class="preview-group-title" style="color:#0284c7;"><i class="fas fa-calendar-alt"></i> 2. 구독 서비스 <small>(연 ${subInterestRate}% / 만기일시상환 기준)</small></div>
         <div style="background:#f0f9ff; padding:15px; border-radius:8px; border:1px solid #bae6fd; margin-bottom:20px;">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                ${[24, 36, 48, 60].map(m => `
-                <div style="background:#fff; padding:12px 5px; border-radius:6px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">${m}개월</div>
-                    <div style="font-weight:800; color:#0284c7; font-size:14px;">월 ${getSubMonthly(m).toLocaleString()}원</div>
-                </div>
-                `).join('')}
+                ${[24, 36, 48, 60].map(m => {
+                    const monthly = getSubMonthly(m);
+                    const totalRepay = monthly * m;
+                    const upfrontRates = { 24: 13.16, 36: 14.12, 48: 16.92, 60: 20.46 };
+                    const settlementAmt = Math.floor(totalRepay * (1 - upfrontRates[m] / 100));
+                    return `
+                    <div style="background:#fff; padding:12px 5px; border-radius:6px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                        <div style="font-size:12px; color:#64748b; margin-bottom:4px;">${m}개월</div>
+                        <div style="font-weight:800; color:#0284c7; font-size:14px;">월 ${monthly.toLocaleString()}원</div>
+                        <div style="font-size:10px; color:#be185d; margin-top:4px; font-weight:600;">정산액: ${settlementAmt.toLocaleString()}원</div>
+                    </div>
+                    `;
+                }).join('')}
+            </div>
+            <div style="margin-top:10px; font-size:10px; color:#64748b; line-height:1.4;">
+                * 정산액 = (월할부금×개월수) - 선취이자<br/>
+                * 선취이자: 24M(13.16%), 36M(14.12%), 48M(16.92%), 60M(20.46%)
             </div>
         </div>
 

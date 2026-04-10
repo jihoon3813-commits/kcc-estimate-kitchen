@@ -1,5 +1,7 @@
 import { ConvexClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
+import PhotoSwipeLightbox from 'https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.4.2/photoswipe-lightbox.esm.min.js';
+import PhotoSwipe from 'https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.4.2/photoswipe.esm.min.js';
 
 /* =========================================
    KCC글라스 HomeCC | 고객용 견적서 JS (PREMIUM VERSION)
@@ -248,42 +250,65 @@ function prepareGalleryData() {
         });
     });
 
-    // 라이트박스 스크롤러 렌더링
-    const scroller = document.getElementById('lightbox-scroller');
-    if(scroller) {
-        scroller.innerHTML = galleryItems.map(gi => `
-            <div class="lightbox-slide">
-                <div class="slide-content">
-                    <img src="${gi.url || 'https://via.placeholder.com/800x600?text=KCC+HomeCC'}" />
-                    <div class="slide-info">
-                        <h3>${gi.title}</h3>
-                        <p>${gi.desc}</p>
-                        ${gi.price ? `<div class="slide-price">${gi.price}</div>` : ''}
-                    </div>
+    // (참고: 기존 라이트박스 스크롤러 렌더링은 더 이상 사용하지 않음)
+}
+
+// PhotoSwipe 라이트박스 인스턴스 초기화
+let pswpLightbox = null;
+
+function initPhotoSwipe() {
+    if (pswpLightbox) return;
+
+    pswpLightbox = new PhotoSwipeLightbox({
+        pswpModule: PhotoSwipe,
+        // galleryItems 배열을 직접 사용하여 데이터 소스 제공
+        dataSource: galleryItems.map(item => ({
+            src: item.url || 'https://via.placeholder.com/800x600?text=KCC+HomeCC',
+            width: 1200, // 기본 해상도 (PhotoSwipe 요구사항)
+            height: 900,
+            alt: item.title,
+            title: item.title,
+            desc: item.desc
+        })),
+        padding: { top: 20, bottom: 80, left: 0, right: 0 },
+        // UI 커스텀: 기존 slide-info 스타일 유지를 위한 캡션 추가
+        addCaptionHTMLFn: (options, pswpInstance, index) => {
+            const item = galleryItems[index];
+            if (!item) return '';
+            return `
+                <div class="pswp-custom-caption">
+                    <h3>${item.title}</h3>
+                    <p>${item.desc}</p>
                 </div>
-            </div>
-        `).join('');
-    }
+            `;
+        }
+    });
+
+    // 이미지 로드 전 실제 크기 계산 (선택 사항이지만 추천)
+    pswpLightbox.addFilter('itemData', (itemData, index) => {
+        const img = new Image();
+        img.src = itemData.src;
+        img.onload = () => {
+            itemData.width = img.naturalWidth;
+            itemData.height = img.naturalHeight;
+        };
+        return itemData;
+    });
+
+    pswpLightbox.init();
 }
 
 // 라이트박스 제어 (Index 기반)
 window.openLightbox = function(index) {
-    const lightbox = document.getElementById('image-lightbox');
-    const scroller = document.getElementById('lightbox-scroller');
-    if(!lightbox || !scroller) return;
-
-    lightbox.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-
-    // 해당 인덱스로 스크롤 이동
-    const slideWidth = window.innerWidth;
-    scroller.scrollLeft = index * slideWidth;
+    if (!galleryItems || galleryItems.length === 0) return;
+    
+    // PhotoSwipe 초기화 및 실행
+    initPhotoSwipe();
+    pswpLightbox.loadAndOpen(index);
 }
 
 window.closeLightbox = function() {
-    const lightbox = document.getElementById('image-lightbox');
-    lightbox.style.display = 'none';
-    document.body.style.overflow = 'auto';
+    // PhotoSwipe는 자체적으로 닫기 기능이 있음
 }
 
 function renderPriceBreakdown(supplyNet, vatNet, finalTotal) {
